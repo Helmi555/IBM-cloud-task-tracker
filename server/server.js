@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const { CloudantV1 } = require('@ibm-cloud/cloudant');
+const client = require('prom-client');
 
 const app = express();
 app.use(express.json());
@@ -71,5 +72,33 @@ app.delete('/tasks/:id', async (req, res) => {
   }
 });
 
-const port = process.env.PORT || 8080;
+
+// Create a Registry to register metrics
+const register = new client.Registry();
+client.collectDefaultMetrics({ register }); // collects default Node.js metrics
+
+// Optional: add custom metric
+const httpRequestCounter = new client.Counter({
+  name: 'http_requests_total',
+  help: 'Total number of HTTP requests',
+  labelNames: ['method', 'route', 'status'],
+});
+register.registerMetric(httpRequestCounter);
+
+// Middleware to count requests
+app.use((req, res, next) => {
+  res.on('finish', () => {
+    httpRequestCounter.labels(req.method, req.path, res.statusCode).inc();
+  });
+  next();
+});
+
+// Metrics endpoint
+app.get('/metrics', async (req, res) => {
+  res.set('Content-Type', register.contentType);
+  res.end(await register.metrics());
+});
+
+
+const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`🚀 Server running on : localhost:${port}`));

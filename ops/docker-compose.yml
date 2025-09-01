@@ -1,0 +1,71 @@
+version: "3.9"
+services:
+  server:
+    build: ../server
+    container_name: task-tracker-server
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - CLOUDANT_APIKEY=ZmKfabvGkLHVKA7ERWw-Z0WMexpFVxsEEaPYxI8LJdey
+      - CLOUDANT_URL=https://ac9ddb5b-7ef7-4723-8d25-0a487fda23ba-bluemix.cloudantnosqldb.appdomain.cloud
+    networks:
+      - monitoring
+    depends_on:
+      - prometheus
+      - loki
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    networks:
+      - monitoring
+
+  loki:
+    image: grafana/loki:2.9.0
+    container_name: loki
+    user: "0:0"
+    volumes:
+      - ./loki/loki-config.yml:/etc/loki/config.yml
+      - ./loki/data:/loki
+      - ./loki/wal:/wal 
+    command: -config.file=/etc/loki/config.yml
+    ports:
+      - "3100:3100"
+    networks:
+      - monitoring
+
+
+  promtail:
+    image: grafana/promtail:2.9.0
+    container_name: promtail
+    volumes:
+      - ./promtail/promtail-config.yml:/etc/promtail/config.yml
+      - ../server:/var/log/server
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      - monitoring
+
+  grafana:
+    image: grafana/grafana:10.2.0
+    container_name: grafana
+    ports:
+      - "3001:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    depends_on:
+      - prometheus
+      - loki
+    networks:
+      - monitoring
+
+volumes:
+  grafana-data:
+
+networks:
+  monitoring:
