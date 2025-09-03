@@ -4,7 +4,7 @@
 [![Deployed](https://img.shields.io/badge/deployed-IBM%20Code%20Engine-blue)](#)
 
 
-![CI/CD Pipeline](../assets/CICD_Pipeline.png)
+![CI/CD Pipeline](assets/CICD_Pipeline.png)
 *Modern task management app demonstrating IBM Cloud DevOps workflows*
 
 ## ✨ Why This Project?
