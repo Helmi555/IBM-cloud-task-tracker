@@ -24,7 +24,7 @@ app.get('/health', async (req, res) => {
   } catch (err) {
     res.status(500).json({ status: 'error', error: err.message });
   }
-})
+});
 
 // Get all tasks
 app.get('/tasks', async (req, res) => {
@@ -97,4 +97,8 @@ app.get('/metrics', async (req, res) => {
 
 
 const port = process.env.PORT || 3000;
-app.listen(port, () => console.log(`🚀 Server running on : localhost:${port}`));
+if (require.main === module) {
+  app.listen(port, () => console.log(`🚀 Server running on : localhost:${port}`));
+};
+
+module.exports = app;
