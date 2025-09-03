@@ -5,10 +5,8 @@ services:
     container_name: task-tracker-server
     ports:
       - "3000:3000"
-    environment:
-      - NODE_ENV=production
-      - CLOUDANT_APIKEY=ZmKfabvGkLHVKA7ERWw-Z0WMexpFVxsEEaPYxI8LJdey
-      - CLOUDANT_URL=https://ac9ddb5b-7ef7-4723-8d25-0a487fda23ba-bluemix.cloudantnosqldb.appdomain.cloud
+    env_file:
+      - .env
     networks:
       - monitoring
     depends_on:

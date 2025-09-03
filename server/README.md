@@ -1,22 +1,34 @@
-# Task Tracker — Express + IBM Cloud (Cloudant + Code Engine + LogDNA)
+# 🚀 Task Tracker - DevOps Learning Project
 
 [![CI](https://img.shields.io/badge/ci-pending-lightgrey)](#)  
 [![Deployed](https://img.shields.io/badge/deployed-IBM%20Code%20Engine-blue)](#)
 
-## What is this
-Task Tracker is a small, demo-ready backend API (Express/Node) for creating, listing, updating and deleting simple tasks.  
-This repo is designed to showcase a **cloud-native developer workflow** using IBM Cloud free-tier services:
 
-- **IBM Cloudant (Lite)** — NoSQL document DB for storing tasks.  
-- **IBM Code Engine** — Serverless container runtime (build from your GitHub repo and deploy).  
-- **IBM Log Analysis (LogDNA)** — Centralized logs and debugging.
+![CI/CD Pipeline](../assets/CICD_Pipeline.png)
+*Modern task management app demonstrating IBM Cloud DevOps workflows*
 
-This project is meant to be your first cloud-deployed app — minimal, secure, and CI/CD-friendly.
+## ✨ Why This Project?
+- **Learn by doing**: Full CI/CD pipeline from code to cloud
+- **Real-world tools**: GitHub Actions, IBM Cloud, Prometheus/Grafana
+- **Production-grade**: Containerized, monitored, and scalable
+- **Perfect for beginners**: Focused scope with enterprise patterns
 
----
+## 🛠 Tech Stack
+| Component          | Technology             | Purpose                          |
+|--------------------|------------------------|----------------------------------|
+| **Backend**        | Express.js             | REST API for tasks               |
+| **Database**       | IBM Cloudant (NoSQL)   | Task storage                     |
+| **CI/CD**          | GitHub Actions         | Automated build/test/deploy      |
+| **Deployment**     | IBM Cloud Code Engine  | Serverless container runtime     |
+| **Monitoring**     | Prometheus + Grafana   | Metrics collection & visualization |
+| **Local Dev**      | Docker Compose         | Replicate prod environment       |
 
-## Live demo
-Deployed URL: `https://<your-code-engine-app>.appdomain.cloud` *(replace with your app URL after deploy)*
+## 🚦 Workflow 
+    A[Local Dev] -->|Push to GitHub| B[GitHub Actions]
+    B -->|Build & Deploy| C[IBM Code Engine]
+    C -->|Connect DB| D[Cloudant]
+    C -->|Expose Metrics| E[Prometheus]
+    E -->|Visualize| F[Grafana]
 
 ---
 
@@ -37,10 +49,3 @@ Deployed URL: `https://<your-code-engine-app>.appdomain.cloud` *(replace with yo
 - `DELETE /tasks/:id` — delete task
 
 *(Use Postman or curl for testing)*
-
----
-
-## Run locally (quick)
-1. `git clone <repo>`  
-2. `cd server`  
-3. Create a `.env` with (example):

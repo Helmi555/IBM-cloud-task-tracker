@@ -73,11 +73,9 @@ app.delete('/tasks/:id', async (req, res) => {
 });
 
 
-// Create a Registry to register metrics
 const register = new client.Registry();
-client.collectDefaultMetrics({ register }); // collects default Node.js metrics
+client.collectDefaultMetrics({ register });
 
-// Optional: add custom metric
 const httpRequestCounter = new client.Counter({
   name: 'http_requests_total',
   help: 'Total number of HTTP requests',
@@ -85,7 +83,6 @@ const httpRequestCounter = new client.Counter({
 });
 register.registerMetric(httpRequestCounter);
 
-// Middleware to count requests
 app.use((req, res, next) => {
   res.on('finish', () => {
     httpRequestCounter.labels(req.method, req.path, res.statusCode).inc();
@@ -93,7 +90,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// Metrics endpoint
 app.get('/metrics', async (req, res) => {
   res.set('Content-Type', register.contentType);
   res.end(await register.metrics());
