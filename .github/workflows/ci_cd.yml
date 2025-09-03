@@ -23,6 +23,10 @@ jobs:
           cd server
           npm install
           npm test
+        env:
+           CLOUDANT_APIKEY: fake-key
+           CLOUDANT_URL: https://fake.cloudant.com
+           CLOUDANT_DB: tasks
 
       # - name: Build Docker image
       #   run: |
