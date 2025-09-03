@@ -1,0 +1,46 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Lint
+        run: |
+          cd server
+          npm install
+          npx eslint server.js
+
+      - name: Test
+        run: |
+          cd server
+          npm install
+          NODE_ENV=test npx jest --passWithNoTests
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: server
+          file: server/Dockerfile
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/task-tracker:latest
+          push: false
+
+      - name: Deploy to IBM Code Engine
+        if: github.ref == 'refs/heads/main'
+        uses: ibm-actions/deploy-to-code-engine@v1
+        with:
+          ibmcloud_api_key: ${{ secrets.IBM_CLOUD_API_KEY }}
+          action: deploy
+          image: ${{ secrets.DOCKERHUB_USERNAME }}/task-tracker:latest
+          task_definition_name: task-tracker-app
+          region: us-south
+          resource_group: Default
+          strategy: rolling
