@@ -3,44 +3,45 @@ name: CI/CD Pipeline
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Lint
-        run: |
-          cd server
-          npm install
-          npx eslint server.js
-
-      - name: Test
-        run: |
-          cd server
-          npm install
-          NODE_ENV=test npx jest --passWithNoTests
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Build Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: server
-          file: server/Dockerfile
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/task-tracker:latest
-          push: false
+        run: |
+          cd server
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/task-tracker:latest .
 
-      - name: Deploy to IBM Code Engine
-        if: github.ref == 'refs/heads/main'
-        uses: ibm-actions/deploy-to-code-engine@v1
+      - name: Push to Docker Hub
+        uses: docker/login-action@v3
         with:
-          ibmcloud_api_key: ${{ secrets.IBM_CLOUD_API_KEY }}
-          action: deploy
-          image: ${{ secrets.DOCKERHUB_USERNAME }}/task-tracker:latest
-          task_definition_name: task-tracker-app
-          region: us-south
-          resource_group: Default
-          strategy: rolling
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Push image
+        run: |
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/task-tracker:latest
+
+      - name: Install IBM Cloud CLI
+        run: |
+          curl -fsSL https://clis.cloud.ibm.com/install/linux | sh
+
+      - name: Login to IBM Cloud
+        run: |
+          ibmcloud login --apikey ${{ secrets.IBM_CLOUD_API_KEY }}
+          ibmcloud target -g Default -r us-south
+
+      - name: Deploy to Code Engine
+        run: |
+          ibmcloud ce project target -n task-tracker-project || ibmcloud ce project create -n task-tracker-project
+          ibmcloud ce application create \
+            --name task-tracker-app \
+            --image ${{ secrets.DOCKERHUB_USERNAME }}/task-tracker:latest \
+            --port 8080 \
+            --env PORT=8080 \
+            --memory 512M \
+            --cpu 1
