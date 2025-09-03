@@ -22,7 +22,7 @@ jobs:
         run: |
           cd server
           npm install
-          NODE_ENV=test npx jest --passWithNoTests
+          npm test
 
       # - name: Build Docker image
       #   run: |
